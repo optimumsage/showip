@@ -1,0 +1,23 @@
+services:
+  flask_app:
+    build: .
+    container_name: flask_app
+    ports:
+      - "5000:5000"  # Expose port 5000 to 443 (for HTTPS)
+    restart: always
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.flask_app.rule=Host(`<your_domain>`)"
+      - "traefik.http.routers.flask_app.tls=true"
+      - "traefik.http.routers.flask_app.tls.certresolver=cloudflare" 
+      - "traefik.http.services.flask_app.loadbalancer.server.port=5000"
+      - "traefik.http.routers.flask_app.entrypoints=websecure"
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true
